@@ -1,23 +1,23 @@
 
-import { Controller, Get, Header, HttpCode, Param, Query, Redirect, Req } from '@nestjs/common';
+import { Body, Controller, Get, Header, HttpCode, Param, Post, Query, Redirect, Req } from '@nestjs/common';
 import { UserService } from './user.service';
+import { User } from 'src/interface/user.interface';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
   @Get()
-  @HttpCode(404)
+  @HttpCode(200)
   @Header('Cache-Control', 'none')
   // @Redirect('https://nestjs.com', 301)
-  getHello(@Query('id') key: string): Object {
-    console.log('=========', key)
-    return this.userService.getUser();
+  async findAll(): Promise<User[]> {
+    return this.userService.findAll()
   }
 
-  @Get(':id')
-  findOne(@Param() params): string {
-    console.log(params.id)
-    return `This action returns a #${params.id} cat`;
+  @Post('/')
+  async create(@Body() user: User) {
+    console.log('======', Body)
+    this.userService.create(user)
   }
 }
