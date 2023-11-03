@@ -1,31 +1,3 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
 ## Installation
 
 ```bash
@@ -65,3 +37,146 @@ nest g module <模块名>
 #快速生成 service
 nest g service <模块名>
 ```
+
+## 开发流程
+
+### 自动化开发
+
+### 手动化开发
+
+1. 生成module.ts
+```js
+nest g module <模块名>
+```
+2. 生成service.ts
+```js
+nest g service <模块名>
+```
+3. 创建controller.ts
+
+<details>
+  <summary>展开查看</summary>
+  <pre>
+  <code>
+
+  ```js
+  import { Body, Controller, HttpCode, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+  import { UserService } from './user.service';
+  import { UserType } from 'src/interface/user.interface';
+  import { ApiResponse, ApiTags } from '@nestjs/swagger';
+  import { CreateUserDto } from 'src/validate/user.dto';
+
+  @ApiTags('user')
+  @Controller('user')
+  export class UserController {
+    constructor(private readonly userService: UserService) { }
+
+    @Post('/')
+    @HttpCode(200)
+    @UsePipes(new ValidationPipe())
+    @ApiResponse({ status: 200, description: '创建成功'})
+    async create(@Body() createUserDto: CreateUserDto) {
+      this.userService.create(createUserDto)
+    }
+  }
+  ```
+  </code>
+  </pre>
+</details>
+
+4. 创建controller.spec.ts (可选 [单元测试])
+
+<details>
+  <summary>展开查看</summary>
+  <pre>
+  <code>
+
+  ```js
+  import { Test, TestingModule } from '@nestjs/testing';
+  import { UserController } from './user.controller';
+  import { UserService } from './user.service';
+
+  describe('UserController', () => {
+    let controller: UserController;
+    let service: UserService;
+
+    describe('root', () => {
+      it('should return "Hello World!"', () => {
+        expect(UserController.getHello()).toBe('Hello World!');
+      });
+    });
+  });
+  ```
+  </code>
+  </pre>
+</details>
+
+5. schemas/**.schema.ts(数据库入库字段及格式)
+
+<details>
+  <summary>展开查看</summary>
+  <pre>
+  <code>
+
+  ```js
+  export interface UserType {
+        name: string;
+        email: string
+      }
+  ```
+  </code>
+  </pre>
+</details>
+
+6. interface/**.interface.ts(字段类型)
+
+<details>
+  <summary>展开查看</summary>
+  <pre>
+  <code>
+
+  ```js
+  import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+    import { HydratedDocument } from 'mongoose';
+
+    export type UserDocument = HydratedDocument<User>;
+    @Schema()
+    export class User {
+      @Prop({ required: true })
+      name: string;
+
+      @Prop({ required: true })
+      email: string;
+    }
+
+    export const UserSchema = SchemaFactory.createForClass(User);
+  ```
+  </code>
+  </pre>
+</details>
+
+7. validate/**.dto.ts(校验入参字段)
+
+
+<details>
+  <summary>展开查看</summary>
+  <pre>
+  <code>
+
+  ```js
+    import { IsEmail, IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
+
+    // validate 为接受字段校验器
+    export class CreateUserDto {
+      @IsNotEmpty()
+      @IsString()
+      name: string;
+
+      @IsEmail()
+      @IsString()
+      email: string;
+    }
+  ```
+  </code>
+  </pre>
+</details>
