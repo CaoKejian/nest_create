@@ -1,4 +1,4 @@
-export interface UserValidate {
+export interface UserType {
   name: string;
-  age: number;
+  email: string
 }
