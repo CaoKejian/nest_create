@@ -2,7 +2,9 @@
 import { Body, Controller, Get, Header, HttpCode, Param, Post, Query, Redirect, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from 'src/interface/user.interface';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) { }
@@ -10,6 +12,7 @@ export class UserController {
   @Get()
   @HttpCode(200)
   @Header('Cache-Control', 'none')
+  @ApiResponse({ status: 200, description: '返回所有用户列表'})
   // @Redirect('https://nestjs.com', 301)
   async findAll(): Promise<User[]> {
     return this.userService.findAll()
