@@ -14,10 +14,6 @@ export class UserService {
   }
 
   findAll(): Promise<UserType[]> {
-    this.userModel.create({
-      name: 21,
-      age: 22,
-    })
     return this.userModel.find()
   }
 }

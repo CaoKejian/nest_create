@@ -9,5 +9,4 @@ export class CreateUserDto {
   @IsEmail()
   @IsString()
   email: string;
-
 }
